@@ -86,7 +86,7 @@ sns.heatmap(data.isnull(), cbar=False, cmap='viridis')
 plt.title('heaatmap', fontsize=16)
 plt.show() #显示缺失值热力图
 
-# 检查 continuous_variables 的数据类型
+# 检查连续变量的数据类型
 for var in continuous_variables:
     if not pd.api.types.is_numeric_dtype(data[var]):
         print(f"⚠️ {var} 不是数值型，是 {data[var].dtype}")
@@ -125,7 +125,29 @@ print(f"\n将要删除的列：{list(columns_to_drop)}")
 data = data.drop(columns=columns_to_drop)
 
 print(f"\n删除后剩余的列数：{data.shape[1]}")
+data.to_csv("D:/vscode_work/mechine learning/IHC.csv", index=False)
 
+
+data = pd.read_csv("D:/vscode_work/mechine learning/IHC.csv")
+# ##随机森林插补
+categorical_features = ['outcome', 'sex', 'nation', 'infection', 'biopsy',
+                        'syringe', 'disease', 'previous_treatment', 'treatment_history',
+                        'treatment', 'nuc', 'IFN']
+# 将分类列转换为category类型
+data[categorical_features] = data[categorical_features].astype('category')
+print(data.columns)
+imputer = MissForest(max_iter=5) # 创建 MissForest 插补器对象
+data_imputed = imputer.fit_transform(data) # # 对包含缺失值的数据 data 进行拟合并填补，返回填补后的新数据 data_imputed
+
+# 注意整数变量的填补值也要保留整数
+integer_columns = ['outcome', 'sex', 'nation', 'height', 'weight', 'medical_history',
+                        'infection', 'biopsy',
+                        'syringe', 'disease', 'previous_treatment', 'treatment_history',
+                        'treatment', 'nuc', 'IFN', 'HB', 'PLT', 
+                        'HB_12w', 'PLT_12w', 'HB_24w', 'PLT_24w', 'HB_36w', 'PLT_36w']
+
+data_imputed[integer_columns] = data_imputed[integer_columns].round()
+data.to_csv("D:/vscode_work/mechine learning/IHC_rfim.csv", index=False)
 
 # 连续变量插补
 categorical_features = ['outcome', 'sex', 'nation', 'infection', 'biopsy',
